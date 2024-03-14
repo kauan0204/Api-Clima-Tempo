@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta do Clima</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kdam+Thmor+Pro&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="forminteiro">
+        <form id="formclima" class="form-texto">
+            <h1>Consulta do Clima</h1>
+
+            <input type="text" id="cityInput" name="cityInput" placeholder="Cidade"> <br>
+            <button type="submit">Consultar</button>
+        </form>
+
+        <div id="lupa" class="lupa">
+            <a href="index.html"><img src="./icones/lupa.png" alt="LUPA"></a>
+        </div>
+        <div class="segundaTela">
+            <div id="descricao1" class="descricao">
+                <img id="descricaoIcon" src="" alt="Ícone descrição">
+                <p id="descricao"></p>
+            </div>
+            <div id="climaResult">
+                <div class="icons">
+                    <p id="city"></p>
+                    <img id="cityIcon" src="" alt="">
+                </div>
+                <div class="icons">
+                    <p id="temperatura"></p>
+                    <img id="temperaturaIcon" src="" alt="Ícone temperatura">
+                </div>
+                <div class="icons">
+                    <p id="umidade"></p>
+                    <img id="umidadeIcon" src="" alt="Ícone umidade">
+                </div>
+                <div class="icons">
+                    <p id="vento"></p>
+                    <img id="ventoIcon" src="" alt="ícone vento">
+                </div>
+            </div>
+        </div>
+
+        <script src="script.js"></script>
+
+</body>
+
+</html>
