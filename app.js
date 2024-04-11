@@ -1,100 +1,61 @@
-const express = require ('express');
-const axios = require ('axios');
-const path = require ('path');
-const cors = require ('cors');
-const config = require('./config.json');
-const apikey = config.apikey;
+// Importa os módulos necessários
+const express = require('express'); // Framework Express para Node.js
+const axios = require('axios'); // Cliente HTTP para fazer requisições
+const path = require('path'); // Módulo Path para lidar com caminhos de arquivos
+const cors = require('cors'); // Middleware CORS para permitir requisições entre origens
+const config = require('./config.json'); // Arquivo de configuração contendo a chave da API
+const apikey = config.apikey; // Extrai a chave da API do arquivo de configuração
 
+// Cria a aplicação Express
 const app = express();
+
+// Configura o servidor para ouvir na porta 3000
 app.listen(3000);
 
+// Habilita o middleware CORS para permitir requisições entre origens
 app.use(cors());
+
+// Middleware para analisar corpos de requisição JSON
 app.use(express.json());
+
+// Middleware para servir arquivos estáticos do diretório 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Objeto que mapeia descrições de clima para suas traduções em português
+const traducaoClima = {
+    // Mapeamento de descrições de clima e suas traduções
+};
 
-const traducaoClima= {
-    'thunderstorm with light rain': 'trovoada com chuva fraca',
-    'thunderstorm with rain': 'trovoada com chuva',
-    'thunderstorm with heavy rain': 'trovoada com chuva forte',
-    'light thunderstorm': 'trovoada leve',
-    'thunderstorm': 'trovoada',
-    'heavy thunderstorm': 'forte tempestade',
-    'ragged thunderstorm': 'tempestade irregular',
-    'thunderstorm with light drizzle': 'trovoada com leve garoa',
-    'thunderstorm with drizzle': 'trovoada com garoa',
-    'thunderstorm with heavy drizzle': 'trovoada com forte garoa',
-    'light intensity drizzle': 'chuvisco de baixa intensidade',
-    'drizzle': 'chuvisco',
-    'heavy intensity drizzle': 'chuvisco de forte intensidade',
-    'light intensity drizzle rain': 'chuvisco de baixa intensidade com chuva',
-    'drizzle rain': 'chuvisco exponencial',
-    'heavy intensity drizzle rain': 'chuva forte com garoa',
-    'shower rain and drizzle': 'chuva e garoa',
-    'shower drizzle': 'chuvisco forte',
-    'light rain': 'chuva leve',
-    'clear sky': 'ceu limpo',
-    'few clouds': 'poucas nuvens',
-    'scattered clouds': 'nuvens dispersas',
-    'broken clouds': 'nuvens separadas',
-    'overcast clouds': 'muitas nuvens',  
-    'moderate rain': 'chuva moderada',
-    'heavy intensity rain': 'chuva de forte intensidade',
-    'very heavy rain': 'chuva muito forte',
-    'extreme rain': 'chuva extrema',
-    'freezing rain': 'chuva congelante',
-    'light intensity shower rain': 'banho de chuva de fraca intensidade',
-    'shower rain': 'banho de chuva',
-    'heavy intensity shower rain': 'banho de chuva de intensidade pesada',
-    'ragged shower rain': 'banho de chuva irregular',
-    'light snow': 'leve neve',
-    'snow': 'neve',
-    'heavy snow': 'neve pesada',
-    'sleet': 'granizo',
-    'light shower sleet': 'neve com granizo leve',
-    'shower sleet': 'neve com granizo',
-    'light rain and snow': 'chuva fraca e neve',
-    'rain and snow': 'chuva e chuva',
-    'light shower snow': 'chuva leve de neve',
-    'shower snow': 'chuva de neve',
-    'heavy shower snow': 'forte chuva de neve',
-    'mist': 'névoa',
-    'smoke': 'fumaça',
-    'haze': 'neblina',
-    'sand/dust whirls': 'redemoinhos de areia/poeira',
-    'fog': 'névoa',
-    'sand': 'areia',
-    'dust': 'poeira',
-    'volcanic ash': 'cinza vulcanica',
-    'squalls': 'ventania',
-    'tornado': 'tornado'
-}
-
+// Define um endpoint GET para buscar dados meteorológicos para uma cidade específica
 app.get('/climatempo/:cidade', async (req, res) => {
-
+    // Extrai o nome da cidade dos parâmetros da requisição
     const city = req.params.cidade;
-   
 
-    try{
+    try {
+        // Faz uma requisição GET para a API do OpenWeatherMap para buscar dados meteorológicos da cidade especificada
         const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}&units=metric`);
 
-            if(response.status === 200){
+        // Se o status da resposta for 200 (OK)
+        if (response.status === 200) {
+            //  a descrição do Traduzclima para português ou usa a descrição original se a tradução não estiver disponível
+            const clima = traducaoClima[response.data.weather[0].description] || response.data.weather[0].description;
 
-                const clima = traducaoClima[response.data.weather[0].description] || response.data.weather[0].description;
+            // Constrói um objeto contendo os dados meteorológicos relevantes
+            const weatherData = {
+                Temperatura: response.data.main.temp,
+                Umidade: response.data.main.humidity,
+                VelocidadeDoVento: response.data.wind.speed,
+                Clima: clima
+            };
 
-                const weatherData = {
-                    Temperatura: response.data.main.temp,
-                    Umidade: response.data.main.humidity,
-                    VelocidadeDoVento: response.data.wind.speed,
-                    Clima: clima
-                };
-
-                res.send(weatherData)   
+            // Envia os dados meteorológicos como resposta
+            res.send(weatherData);
         } else {
-                res.status(response.status).send({erro: 'Erro ao obter dados meteorológicos'})
+            // Se o status da resposta não for 200, envia uma resposta de erro com o código de status apropriado
+            res.status(response.status).send({ erro: 'Erro ao obter dados meteorológicos' });
         }
-
     } catch (error) {
-        res.status(500).send({erro:'Erro ao obter dados metereológicos', error });
+        // Se ocorrer algum erro durante o processo, envia uma resposta de erro genérica com o código de status 500
+        res.status(500).send({ erro: 'Erro ao obter dados metereológicos', error });
     }
-})
+});
